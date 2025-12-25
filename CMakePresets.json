@@ -1,0 +1,29 @@
+{
+    "version": 8,
+    "configurePresets": [
+		{
+            "name": "clang-debug-linux",
+            "displayName": "clang-debug-linux",
+            "description": "Using compilers: C = clang, CXX = clang++",
+            "binaryDir": "${sourceDir}/bin/${presetName}",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_CXX_COMPILER": "clang++",
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_CXX_FLAGS_INIT": "-stdlib=libc++"
+            }
+        },
+        {
+            "name": "clang-release-linux",
+            "displayName": "clang-release-linux",
+            "description": "Using compilers: C = clang, CXX = clang++",
+            "binaryDir": "${sourceDir}/bin/${presetName}",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_CXX_COMPILER": "clang++",
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_CXX_FLAGS_INIT": "-stdlib=libc++"
+            }
+        }
+    ]
+}
