@@ -16,7 +16,7 @@ target_sources(chutil PUBLIC
   TYPE HEADERS
   FILES ${headers}
 )
-target_include_directories(chutil PUBLIC ${CMAKE_SOURCE_DIR}/include)
+target_include_directories(chutil PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 target_compile_options(chutil PUBLIC -Wall -Wextra -Wpedantic)
 add_subdirectory(tests)
