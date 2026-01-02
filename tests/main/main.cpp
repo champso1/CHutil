@@ -1,10 +1,28 @@
+#include <filesystem>
 #include <string>
-#include <iostream>
+#include <print>
 
 #include "chutil/chutil.hpp"
 
-int main()
+static void usage()
 {
-	std::string output = chutil::run_command_with_stdout("Z:\\home\\champson\\Documents\\coding\\CHutil\\bin\\mingw32-debug\\tests\\main\\test.exe");
-	std::cout << output << std::endl;
+	std::println("==================================================");
+	std::println("USAGE: ./main <path-to-test-executable>");
+	std::println("\t<path-to-test-executable>: An absolute path to an executable of some kind.");
+	std::println("\t\tThe default is the test executable build by this project.");
+	std::println("==================================================");
+}
+
+int main(int argc, char* argv[])
+{
+	std::string path;
+	if (argc > 2)
+		usage();
+	if (argc == 1)
+		path = std::filesystem::current_path()/"test";
+	else
+		path = argv[1];
+	
+	std::string output = chutil::run_command_with_stdout(path);
+	std::println("{}", output);
 }
