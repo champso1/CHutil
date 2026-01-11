@@ -4,10 +4,10 @@
 #include <vector>
 #include <iterator>
 #include <fstream>
+#include <source_location>
 
 #ifdef __WIN32__
     #define WIN32_LEAN_AND_MEAN
-    #define UNICODE
     #include <windows.h>
     #include <tchar.h>
     #include <strsafe.h>
@@ -18,10 +18,33 @@
 
 namespace chutil
 {
+
+#if 0
+#ifdef __WIN32__
+	void handle_win32_error()
+	{
+		DWORD error_code = GetLastError();
+		log(LOG_INFO, "handle_win_error()",
+			"Determing system error with code {}....", error_code);
+		std::array<char, 256> error_buf{};
+		FormatMessage(
+			FORMAT_MESSAGE_FROM_SYSTEM,
+			NULL, error_code,
+			LANG_USER_DEFAULT,
+			error_buf.data(),
+			error_buf.size(),
+			NULL
+		);
+		std::string error_msg(error_buf.begin(), error_buf.end());
+		log(LOG_ERROR_NOQUIT, "handle_win_error()", "ERROR: {}", error_msg);
+	}
+#endif
+#endif
+	
     void run_command(std::string_view command)
 	{
 #ifdef __WIN32__
-		std::vector<wchar_t> cmd(command.begin(), command.end());
+		std::vector<char> cmd(command.begin(), command.end());
 		
 	    STARTUPINFO start_info{};
 		start_info.cb = sizeof(STARTUPINFO);
@@ -40,12 +63,14 @@ namespace chutil
 			&start_info,
 			&proc_info);
 		if (!success) {
-			std::array<wchar_t, 256> buf{};
+			std::array<char, 256> buf{};
 			DWORD err = GetLastError();
-			log(LOG_ERROR, "WIN32", "Failed to create child process ({})", err);
+			log(LOG_ERROR_NOQUIT, "WIN32", "Failed to create child process ({})", err);
 			FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, nullptr, GetLastError(), LANG_SYSTEM_DEFAULT, buf.data(), buf.size(), nullptr);
 			std::string buf_str(buf.begin(), buf.end());
 			log(LOG_INFO, "WIN32", "Reason for above error: {}", buf_str);
+			log(LOG_INFO, "WIN32", "Call that raised the error: {}", std::source_location::current().function_name());
+			log(LOG_INFO, "WIN32", "    with command='{}'", command);
 			exit(EXIT_FAILURE);
 		}
 		WaitForSingleObject(proc_info.hProcess, INFINITE);
@@ -69,7 +94,7 @@ namespace chutil
 	std::string run_command_with_stdout(std::string_view command)
 	{
 #ifdef __WIN32__
-		std::vector<wchar_t> cmd(command.begin(), command.end());
+		std::vector<char> cmd(command.begin(), command.end());
 		
 		SECURITY_ATTRIBUTES sec_attr{};
 		sec_attr.nLength = sizeof(SECURITY_ATTRIBUTES);
@@ -98,14 +123,16 @@ namespace chutil
 			&start_info,
 			&proc_info);
 		if (!success) {
-			std::array<wchar_t, 256> buf{};
+			std::array<char, 256> buf{};
 			DWORD err = GetLastError();
-			log(LOG_ERROR, "WIN32", "Failed to create child process ({})", err);
+			log(LOG_ERROR_NOQUIT, "WIN32", "Failed to create child process ({})", err);
 			FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, nullptr, GetLastError(), LANG_SYSTEM_DEFAULT, buf.data(), buf.size(), nullptr);
 			std::string buf_str(buf.begin(), buf.end());
 			log(LOG_INFO, "WIN32", "Reason for above error: {}", buf_str);
 			CloseHandle(read_pipe);
 			CloseHandle(write_pipe);
+			log(LOG_INFO, "WIN32", "Call that raised the error: {}", std::source_location::current().function_name());
+			log(LOG_INFO, "WIN32", "    with command='{}'", command);
 			exit(EXIT_FAILURE);
 		}
 		CloseHandle(write_pipe);

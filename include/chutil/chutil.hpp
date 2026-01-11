@@ -45,6 +45,10 @@ namespace chutil
 		if (log_type == LOG_ERROR)
 			exit(EXIT_FAILURE);
 	}
+
+#ifdef __WIN32__
+	void handle_win32_error(int code);
+#endif
 	
 	void run_command(std::string_view command);
 	std::string run_command_with_stdout(std::string_view command);

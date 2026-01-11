@@ -1,28 +1,20 @@
+#include <algorithm>
 #include <filesystem>
+#include <iterator>
 #include <string>
-#include <print>
+#include <iostream>
 
 #include "chutil/chutil.hpp"
+using namespace chutil;
 
-static void usage()
-{
-	std::println("==================================================");
-	std::println("USAGE: ./main <path-to-test-executable>");
-	std::println("\t<path-to-test-executable>: An absolute path to an executable of some kind.");
-	std::println("\t\tThe default is the test executable build by this project.");
-	std::println("==================================================");
-}
 
-int main(int argc, char* argv[])
+int main()
 {
-	std::string path;
-	if (argc > 2)
-		usage();
-	if (argc == 1)
-		path = std::filesystem::current_path()/"test";
-	else
-		path = argv[1];
-	
-	std::string output = chutil::run_command_with_stdout(path);
-	std::println("{}", output);
+	namespace fs = std::filesystem;
+	std::string path = (fs::current_path()/"test.exe").string();
+    run_command(path);
+
+	fs::path txt_file_path = fs::current_path()/"test_file.txt";
+	std::vector<char> data = read_file(txt_file_path);
+	std::copy(data.begin(), data.end(), std::ostreambuf_iterator<char>(std::cout));
 }
