@@ -6,6 +6,8 @@
 #include <format>
 #include <print>
 #include <cstdlib>
+#include <vector>
+#include <filesystem>
 
 using uint = unsigned;
 
@@ -37,7 +39,7 @@ namespace chutil
 	template <typename... TArgs>
 	void log(uint log_type, std::string_view prefix, std::format_string<TArgs...> fmt_string, TArgs&& ...args)
 	{
-		std::string log_text = std::vformat(fmt_string.get(), std::make_format_args(std::forward<TArgs>(args)...));
+		std::string log_text = std::vformat(fmt_string.get(), std::make_format_args(args...));
 		std::println("{}[{}] {}: {}{}", log_string_colors[log_type], log_string_reps[log_type], prefix, log_text, ANSI_COLOR_RESET);
 
 		if (log_type == LOG_ERROR)
@@ -46,6 +48,8 @@ namespace chutil
 	
 	void run_command(std::string_view command);
 	std::string run_command_with_stdout(std::string_view command);
+
+	std::vector<char> read_file(std::filesystem::path const& filepath);
 }
 
 #endif // __CHUTIL_HPP

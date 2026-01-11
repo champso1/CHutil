@@ -2,6 +2,8 @@
 
 #include <array>
 #include <vector>
+#include <iterator>
+#include <fstream>
 
 #ifdef __WIN32__
     #define WIN32_LEAN_AND_MEAN
@@ -153,5 +155,21 @@ namespace chutil
 
 		return output;
 #endif
+	}
+
+
+
+	std::vector<char> read_file(std::filesystem::path const& filepath)
+	{
+		namespace fs = std::filesystem;
+		if (!fs::exists(filepath))
+			log(LOG_ERROR, "read_file()", "Failed to find file '{}'.", filepath.string());
+
+		std::ifstream file(filepath);
+		std::vector<char> data(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>{});
+		if (data.empty())
+			log(LOG_WARNING, "read_file()", "File '{}' contains nothing.", filepath.string());
+		
+		return data;
 	}
 }
