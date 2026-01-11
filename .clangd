@@ -1,0 +1,11 @@
+CompileFlags:
+  CompilationDatabase: ./bin/clang-debug
+
+InlayHints:
+  Enabled: true
+  ParameterNames: false
+  DeducedTypes: false
+  Designators: false
+  BlockEnd: false
+  DefaultArguments: false
+  TypeNameLimit: 24
