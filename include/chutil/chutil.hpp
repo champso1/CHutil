@@ -37,7 +37,7 @@ namespace chutil
 		ANSI_COLOR_GREEN, ANSI_COLOR_RESET, ANSI_COLOR_YELLOW, ANSI_COLOR_RED, ANSI_COLOR_RED};
 
 	template <typename... TArgs>
-	void log(uint log_type, std::string_view prefix, std::format_string<TArgs...> fmt_string, TArgs&& ...args)
+	void log(int log_type, std::string_view prefix, std::format_string<TArgs...> fmt_string, TArgs&& ...args)
 	{
 		std::string log_text = std::vformat(fmt_string.get(), std::make_format_args(args...));
 		std::println("{}[{}] {}: {}{}", log_string_colors[log_type], log_string_reps[log_type], prefix, log_text, ANSI_COLOR_RESET);
@@ -46,10 +46,6 @@ namespace chutil
 			exit(EXIT_FAILURE);
 	}
 
-#ifdef __WIN32__
-	void handle_win32_error(int code);
-#endif
-	
 	void run_command(std::string_view command);
 	std::string run_command_with_stdout(std::string_view command);
 

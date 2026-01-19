@@ -65,12 +65,10 @@ namespace chutil
 		if (!success) {
 			std::array<char, 256> buf{};
 			DWORD err = GetLastError();
-			log(LOG_ERROR_NOQUIT, "WIN32", "Failed to create child process ({})", err);
+			log(LOG_ERROR, "(WIN32)", "Failed to create child process ({})", err);
 			FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, nullptr, GetLastError(), LANG_SYSTEM_DEFAULT, buf.data(), buf.size(), nullptr);
 			std::string buf_str(buf.begin(), buf.end());
-			log(LOG_INFO, "WIN32", "Reason for above error: {}", buf_str);
-			log(LOG_INFO, "WIN32", "Call that raised the error: {}", std::source_location::current().function_name());
-			log(LOG_INFO, "WIN32", "    with command='{}'", command);
+			log(LOG_INFO, "(WIN32)", "Reason for above error: {}", buf_str);
 			exit(EXIT_FAILURE);
 		}
 		WaitForSingleObject(proc_info.hProcess, INFINITE);
@@ -80,7 +78,10 @@ namespace chutil
 #else
 	    pid_t pid = fork();
 		if (pid == -1)
-			log(LOG_ERROR, "POSIX", "Failed to create child process.");
+		{
+			log(LOG_ERROR, "(POSIX)", "Failed to create child process.");
+			exit(EXIT_FAILURE);
+		}
 
 		if (pid == 0) {
 		    execl("/bin/bash", "bash", "-c", command.data(), nullptr);
@@ -103,7 +104,8 @@ namespace chutil
 		HANDLE read_pipe, write_pipe;
 		if (!CreatePipe(&read_pipe, &write_pipe, &sec_attr, 0)) {
 			DWORD err = GetLastError();
-			log(LOG_ERROR, "WIN32", "Failed to create pipe for child process ({}).", err);
+			log(LOG_ERROR, "(WIN32)", "Failed to create pipe for child process ({}).", err);
+			exit(EXIT_FAILURE);
 		}
 
 	    STARTUPINFO start_info{};
@@ -125,10 +127,10 @@ namespace chutil
 		if (!success) {
 			std::array<char, 256> buf{};
 			DWORD err = GetLastError();
-			log(LOG_ERROR_NOQUIT, "WIN32", "Failed to create child process ({})", err);
+			log(LOG_ERROR, "(WIN32)", "Failed to create child process ({})", err);
 			FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, nullptr, GetLastError(), LANG_SYSTEM_DEFAULT, buf.data(), buf.size(), nullptr);
 			std::string buf_str(buf.begin(), buf.end());
-			log(LOG_INFO, "WIN32", "Reason for above error: {}", buf_str);
+			log(LOG_INFO, "(WIN32)", "Reason for above error: {}", buf_str);
 			CloseHandle(read_pipe);
 			CloseHandle(write_pipe);
 			log(LOG_INFO, "WIN32", "Call that raised the error: {}", std::source_location::current().function_name());
@@ -153,11 +155,17 @@ namespace chutil
 #else
 		int pipefd[2]{};
 		if (pipe(pipefd) == -1)
-			log(ERROR, "(POSIX)", "Failed to create pipe for child process.");
+		{
+			log(LOG_ERROR, "(POSIX)", "Failed to create pipe for child process.");
+			exit(EXIT_FAILURE);
+		}
 
 		pid_t pid = fork();
 		if (pid == -1)
-			log(ERROR, "(POSIX)", "Failed to create child process.");
+		{
+			log(LOG_ERROR, "(POSIX)", "Failed to create child process.");
+			exit(EXIT_FAILURE);
+		}
 
 		if (pid == 0) {
 			close(pipefd[0]);
